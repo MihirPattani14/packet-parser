@@ -1,0 +1,63 @@
+/*
+*Author: Mihir Pattani
+*Penn Key: 63859942
+*Course: Networked Systems CIS-553
+*Assignment 2: Network Analysis
+*/
+
+I have completed all requirements of Part 1 of assignment 2.
+
+Please note - I have only implemented checksum validation for TCP packets because thats what the assignment said
+
+The code compiles and runs without errors or warnings on the eniac machine.
+
+I have added comments in my code to explain different steps.
+
+TO RUN the code please enter the following:
+
+	make
+
+	./packetparse <file_name>
+
+An example of the above implentation is - 
+
+#####@eniac:~/ns> make
+
+#####@eniac:~/ns> ./packetparse smtp.pcap
+
+
+The assignment asks us to run the file only as a commmand packetparse.
+But to make packetparse a command we need sudo privileges.
+
+The output is in the following form -
+
+_____________________________________________
+
+	Packet Number: 59
+_____________________________________________
+
+Packet Type:	|	TCP
+MAC src:	|	00:1f:33:d9:81:600
+MAC dest:	|	00:e0:1c:3c:17:c2
+IP src:		|	74:53:140:153 
+IP dest:	|	10:10:1:4
+Src port:	|	25
+Dest port:	|	1470
+Checksum:	|	8545
+Validity:	|	Valid Checksum
+Payload :	|	6
+
+
+
+
+Also at the end of the output there are general stats about the pcap file-
+
+_____________________________________________
+
+	Overall Statistics
+_____________________________________________
+
+Total Packets:	|	60
+TCP Packets:	|	53
+UDP Packets:	|	3
+Other Packets:	|	4

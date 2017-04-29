@@ -1,0 +1,11 @@
+Initiator IP: 10.10.1.4
+Responder IP: 74.53.140.153
+Initiator Port: 1470
+Responder Port: 25
+Packets Sent by Initiator: 28
+Packets Sent by Responder: 25
+Bytes Sent by Initiator: 20545
+Bytes Sent by Responder: 538
+Duplicate Packets Sent by Initiator: 0
+Duplicate Packets Sent by Responder: 0
+Connection Ended before EOF: True

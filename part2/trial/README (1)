@@ -1,0 +1,25 @@
+/*
+*Author: Mihir Pattani
+*Penn Key: 63859942
+*Course: Networked Systems CIS-553
+*Assignment 2: Network Analysis
+*/
+
+I have completed all requirements of Part 1 and Part 2 of assignment 2.
+
+Please note - I have only implemented checksum validation for TCP packets because thats what the assignment said
+
+The code compiles and runs without errors or warnings on the eniac machine.
+
+I have added comments in my code to explain different steps.
+
+
+An example of the running the code is - 
+
+#####@eniac:~/ns> make
+
+#####@eniac:~/ns> python packetparser.py <filename>
+
+#####@eniac:~/ns> python packetparser.py <filename> -t
+
+

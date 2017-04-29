@@ -1,0 +1,1044 @@
+EHLO Percival
+AUTH LOGIN
+Z2FsdW50
+VjF2MXRyMG4=
+MAIL FROM: <xxxxxx@xxxxx.co.uk>
+RCPT TO: <xxxxxx.xxxx@xxxxx.com>
+DATA
+g treated as error - no object file =
+generated
+rtse.cnf(112) : warning C4133: 'function' : incompatible types - from =
+'const struct _ber_sequence_t [5]' to 'const struct _ber_old_sequence_t =
+*'
+
+rtse.cnf:128: UserWarning: Unused FN_BODY for =
+EXTERNALt/encoding/single-ASN1-type
+  offset=3Dcall_rtse_oid_callback(object_identifier_id, tvb, offset, =
+actx->pinfo, top_tree);
+rtse.cnf:115: UserWarning: Unused FN_BODY for =
+EXTERNALt/indirect-reference
+  char *oid;
+
+------=_NextPart_000_0012_01C7B64E.426C8120
+Content-Type: application/octet-stream;
+	name="related.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="related.patch"
+
+Index: asn1/ldap/Lightweight-Directory-Access-Protocol-V3.asn=0A=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=0A=
+--- asn1/ldap/Lightweight-Directory-Access-Protocol-V3.asn	(revision =
+18688)=0A=
++++ asn1/ldap/Lightweight-Directory-Access-Protocol-V3.asn	(working copy)=0A=
+@@ -1,7 +1,7 @@=0A=
+ -- Module Lightweight-Directory-Access-Protocol-V3 (RFC 2251:12/1997)=0A=
+ Lightweight-Directory-Access-Protocol-V3=0A=
+ --=0A=
+--- $Id:$=0A=
++-- $Id$=0A=
+ -- Copyright (C) The Internet Society (1997). This version of=0A=
+ -- this ASN.1 module is part of RFC 2251;=0A=
+ -- see the RFC itse0A=
+ LogotypeExtn B "1.3.6.1.5.5.7.20.1" "id-pe-logo-loyalty"=0A=
+ LogotypeExtn B "1.3.6.1.5.5.7.20.2" "id-pe-logo-background"=0A=
+ =0A=
++#.FN_FTR IA5String=0A=
++	if((hf_index =3D=3D hf_logotypecertextn_logotypeURI_item) ||=0A=
++	   (hf_index =3D=3D hf_logotypecertextn_refStructURI_item)) =0A=
++	   PROTO_ITEM_SET_URL(get_ber_last_created_item());=0A=
++=0A=
++=0A=
+ #.NO_EMIT=0A=
+ =0A=
+ #.TYPE_RENAME=0A=
+Index: asn1/x509ce/packet-x509ce-template.c=0A=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=0A=
+--- asn1/x509ce/packet-x509ce-template.c	(revision 18688)=0A=
++++ asn1/x509ce/packet-x509ce-template.c	(working copy)=0A=
+@@ -30,6 +30,7 @@=0A=
+ #include <glib.h>=0A=
+ #include <epan/packet.h>=0A=
+ #include <epan/conversation.h>=0A=
++#include <epan/related.h>=0A=
+ =0A=
+ #include <stdio.h>=0A=
+ #include <string.h>=0A=
+@@ -116,5 +117,8 @@=0A=
+ #include "packet-x509ce-dis-tab.c"=0A=
+ 	register_ber_oid_dissector("2.5.29.24", =
+dissect_x509ce_invalidityDate_callback, proto_x509ce, =
+"id-ce-invalidityDate");=0A=
+ 	register_ber_oid_dissector("2.5.29.51", =
+dissect_x509ce_baseUpdateTime_callback, proto_x509ce, =
+"id-ce-baseUpdateTime");=0A=
++=0A=
++	register_related_hfid_callback("GeneralName URL", =
+hf_x509ce_uniformResourceIdentifier, related_url_cb);=0A=
+perties_cb,=0A=
+                        0, NULL, NULL),=0A=
+     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", =
+NULL),=0A=
+@@ -2160,6 +2162,8 @@=0A=
+ 	  TRUE);=0A=
+ 	set_menu_sensitivity(tree_view_menu_factory, "/Filter Field Reference",=0A=
+ 	  TRUE);=0A=
++	set_menu_sensitivity(tree_view_menu_factory, "/Related Information",=0A=
++			     selected_ptree_has_related());=0A=
+   } else {=0A=
+ 	set_menu_sensitivity(main_menu_factory,=0A=
+ 	    "/Go/Go to Corresponding Packet", FALSE);=0A=
+@@ -2177,6 +2181,8 @@=0A=
+ 	  FALSE);=0A=
+ 	set_menu_sensitivity(tree_view_menu_factory, "/Filter Field Reference",=0A=
+ 	  FALSE);=0A=
++	set_menu_sensitivity(tree_view_menu_factory, "/Related Information",=0A=
++	  FALSE);=0A=
+   }=0A=
+ =0A=
+   walk_menu_tree_for_selected_tree_row(tap_menu_tree_root, =
+cf->finfo_selected);=0A=
+Index: gtk/main.c=0A=
+=3D=3D==3D=3D=3D=3D=3D=3D=3D=0A=
+--- gtk/main.h	(revision 18688)=0A=
++++ gtk/main.h	(working copy)=0A=
+@@ -105,6 +105,18 @@=0A=
+  */=0A=
+ extern void selected_ptree_ref_cb(GtkWidget *widget, gpointer data);=0A=
+ =0A=
++/** User requested "Related Information" by ptree context menu.=0A=
++ *=0A=
++ * @param widget parent widget (unused)=0A=
++ * @param data unused=0A=
++ */=0A=
++extern void selected_ptree_related_cb(GtkWidget *widget, gpointer data);=0A=
++=0A=
++/** Determine if "Related Information" should be enabled in ptree =
+context menu.=0A=
++ *=0A=
++ */=0A=
++extern gboolean selected_ptree_has_related();=0A=
++=0A=
+ /** "Apply as Filter" / "Prepare a Filter" action type. */=0A=
+ typedef enum {=0A=
+     MATCH_SELECTED_REPLACE, /**< "Selected" */=0A=
+Index: epan/related.c=0A=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=0A=
+--- epan/related.c	(revision 0)=0A=
++++ epan/related.c	(revision 0)=0A=
+@@ -0,0 +1,177 @@=0A=
++/* related.c=0A=
++ * related field information   2006 Graeme Lunt=0A=
++ *=0A=
++ * $Id$=0A=
++ *=0A=
++ * Wireshark - Network traffic analyzer=0A=
++ * By Gerald Combs <gerald@wireshark.org>=0A=
++ * Copyright 1998 Gerald Combs=0A=
++ * =0A=
++ * This program is free software; you can redistribute it and/or=0A=
++ * modify it under the terms of t
+const gchar**  ret_url)=0A=
++{=0A=
++=0A=
++  if(finfo && IS_FT_STRING(finfo->hfinfo->type) && FI_GET_FLAG(finfo, =
+FI_URL)) {=0A=
++    =0A=
++    if(doit && ret_url) {=0A=
++      /* the URL will be freed */=0A=
++      *ret_url =3D g_strndup(tvb_get_ptr(finfo->ds_tvb, finfo->start, =
+finfo->length), finfo->length);=0A=
++=0A=
++      return TRUE;=0A=
++    } else {=0A=
++	return TRUE;=0A=
++    }=0A=
++  }=0A=
++=0A=
++  return FALSE;=0A=
++=0A=
++}=0A=
++=0A=
++void related_init()=0A=
++{=0A=
++=0A=
++  /* register a callback for strings that have been marked as URLs with=0A=
++     PROTO_ITEM_SET_URL */=0A=
++=0A=
++  register_related_type_callback("View URL", FT_STRING, =
+related_url_string_cb);=0A=
++=0A=
++}=0A=
++=0A=
++int register_related_callback(const char *name, int hf_lb, int hf_ub, =
+enum ftenum type, related_cb related)=0A=
++{=0A=
++  related_t *r, *rl;=0A=
++  int i;=0A=
++=0A=
++  /* sanity check */=0A=
++  if(!related)=0A=
++    return 0;=0A=
++=0A=
++  r =3D g_malloc(sizeof(related_t));=0A=
++  r->next =3D NULL;=0A=
++  =0A=
++  r->name =3D g_strdup(name);=0A=
++  r->hf_lb =3D hf_lb;=0A=
++  r->hf_ub =3D hf_ub;=0A=
++  r->type =3D type;=0A=
++  r->related =3D related;=0A=
++=0A=
++  if(!related_list){=0A=
++    related_list=3Dr;=0A=
++    i=3D1;=0A=
++  } else {=0A=
++    for(i=3D2,rl=3Drelated_list; rl->next; i++,rl=3Drl->next)=0A=
++      ;=0A=
++    rl->next=3Dr;=0A=
++  }=0A=
++  =0A=
++  return i;=0A=
+++=0A=
++    if(doit && ret_url) {=0A=
++      /* the URL will be freed */=0A=
++      *ret_url =3D g_strndup(tvb_get_ptr(finfo->ds_tvb, finfo->start, =
+finfo->length), finfo->length);=0A=
++=0A=
++      return TRUE;=0A=
++    } else {=0A=
++	return TRUE;=0A=
++    }=0A=
++  }=0A=
++=0A=
++  return FALSE;=0A=
++=0A=
++}=0A=
++=0A=
++=0A=
++=0A=
+=0A=
+Property changes on: epan/related.c=0A=
+___________________________________________________________________=0A=
+Name: svn:keywords=0A=
+   + Id=0A=
+Name: svn:eol-style=0A=
+   + native=0A=
+=0A=
+Index: epan/related.h=0A=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=0A=
+--- epan/related.h	(revision 0)=0A=
++++ epan/related.h	(revision 0)=0A=
+@@ -0,0 +1,57 @@=0A=
++/*info, gboolean doit, const =
+gchar**  ret_url);=0A=
++=0A=
++void related_init();=0A=
++=0A=
++/* Register a related function for a given range of fields, or a =
+specific =0A=
++   field type */=0A=
++int register_related_callback(const char *name, int hf_lb, int hf_ub, =
+enum ftenum type, related_cb related);=0A=
++=0A=
++#define register_related_range_callback(n, lb, ub, cb) =
+register_related_callback(n, lb, ub, FT_NONE, cb)=0A=
++#define register_related_type_callback(n, t, cb) =
+register_related_callback(n, 0, G_MAXINT, t, cb)=0A=
++#define register_related_hfid_callback(n, h, cb) =
+register_related_callback(n, h, h, FT_NONE, cb)=0A=
++=0A=
++=0A=
++/* Determine if there is related information for this field */=0A=
++gboolean have_related(field_info *finfo);=0A=
++=0A=
++/* Show the related information for this field */=0A=
++gboolean do_related(field_info *finfo, const gchar **ret_url);=0A=
++=0A=
++/* A common function for fields that are URIs */=0A=
++gboolean related_url_cb(field_info *finfo, gboolean doit, const gchar** =
+ ret_url);=0A=
++=0A=
++#endif=0A=
+=0A=
+Property changes on: epan/related.h=0A=
+___________________________________________________________________=0A=
+Name: svn:keywords=0A=
+   + Id=0A=
+Name: svn:eol-style=0A=
+   + native=0A=
+=0A=
+Index: epan/Makefile.common=0A=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3 URL */=0A=
++#define PROTO_ITEM_IS_URL(proto_item)	\=0A=
++	((proto_item) ? FI_GET_FLAG((proto_item)->finfo, FI_URL) : 0)=0A=
++/* mark this protocol field as a URL */=0A=
++#define PROTO_ITEM_SET_URL(proto_item)	\=0A=
++	((proto_item) ? FI_SET_FLAG((proto_item)->finfo, FI_URL) : 0)=0A=
+ =0A=
+ typedef void (*proto_tree_foreach_func)(proto_node *, gpointer);=0A=
+ =0A=
+Index: epan/dissectors/packet-ldap.c=0A=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=0A=
+--- epan/dissectors/packet-ldap.c	(revision 18688)=0A=
++++ epan/dissectors/packet-ldap.c	(working copy)=0A=
+@@ -642,7 +642,7 @@=0A=
+ =0A=
+ static int=0A=
+ dissect_ldap_MessageID(gboolean implicit_tag _U_, tvbuff_t *tvb, int =
+offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {=0A=
+-#line 53 "ldap.cnf"=0A=
++#line 56 "ldap.cnf"=0A=
+ =0A=
+     offset =3D dissect_ber_integer(implicit_tag, pinfo, tree, tvb, =
+offset, hf_index,=0A=
+                                   &MessageID);=0A=
+@@ -675,7 +675,7 @@=0A=
+ =0A=
+ static int=0A=
+ dissect_ldap_LDAPString(gboolean implicit_tag _U_, tvbuff_t *tvb, int =
+offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {=0A=
+-#line 240 "ldap.cnf"=0A=
++#line 243 "ldap.cnf"=0A=
+   tvbuff_t	*parameter_tvb =3D NULL;=0A=
+   char          *ldaps7 +1041,7 @@=0A=
+ =0A=
+ static int=0A=
+ dissect_ldap_BindResponse_resultCode(gboolean implicit_tag _U_, =
+tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int =
+hf_index _U_) {=0A=
+-#line 357 "ldap.cnf"=0A=
++#line 360 "ldap.cnf"=0A=
+ =0A=
+   const gchar *valstr;=0A=
+ =0A=
+@@ -1088,8 +1088,13 @@=0A=
+ =0A=
+ static int=0A=
+ dissect_ldap_LDAPURL(gboolean implicit_tag _U_, tvbuff_t *tvb, int =
+offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {=0A=
+-  offset =3D dissect_ldap_LDAPString(implicit_tag, tvb, offset, pinfo, =
+tree, hf_index);=0A=
++  offset =3D dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, =
+offset, hf_index,=0A=
++                                       NULL);=0A=
+ =0A=
++#line 32 "ldap.cnf"=0A=
++	PROTO_ITEM_SET_URL(get_ber_last_created_item());=0A=
++=0A=
++=0A=
+   return offset;=0A=
+ }=0A=
+ static in -1345,7 +1350,7 @@=0A=
+ dissect_ldap_T_and_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int =
+offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {=0A=
+   offset =3D dissect_ldap_Filter(implicit_tag, tvb, offset, pinfo, =
+tree, hf_index);=0A=
+ =0A=
+-#line 470 "ldap.cnf"=0A=
++#line 473 "ldap.cnf"=0A=
+ 	if(and_filter_string){=0A=
+ 		=
+and_filter_string=3Dep_strdup_printf("(&%s%s)",and_filter_string,Filter_s=
+tring);=0A=
+ 	} else {=0A=
+@@ -1366,7 +1371,7 @@=0A=
+ =0A=
+ static int=0A=
+ dissect_ldap_T_and(gboolean implicit_tag _U_, tvbuff_t *tvb, int =
+offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {=0A=
+-#line 477 "ldap.cnf"=0A=
++#line 480 "ldap.cnf"=0A=
+ 	const ber_sequence_t and_set_of[1] =3D {  { BER_CLASS_ANY/*choice*/, =
+-1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_and_item },=0A=
+ };=0A=
+ 	proto_tree *tr=3DNULL;=0A=
+@@ -1399,7 +1404,7 @@=0A=
+ dissect_ldap_T_or_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int =
+offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {=0A=
+   offset =3D dissect_ldap_Filter(implicit_tag, tvb, offset, pinfo, =
+tree, hf_index);=0A=
+ =0A=
+-#line 496 "ldap.cnf"=0A=
++#line 499 "ldap.cnf"=0A=
+ 	if(or_filter_string){=0A=
+ 		=
+or_filter_string=3Dep_strdup_printf("(|%s%s)",or_filter_string,Filter_str=
+ing);=0A=
+ 	} else {=0A=
+@@ -1421,7 +1426,7 @@=0A=
+ =0A=
+ static int=0A=
+ dissect_ldap_T_or(gboolean implldap.cnf"=0A=
++#line 555 "ldap.cnf"=0A=
+ 	if (substring_item_final) {=0A=
+ 		substring_value=3Dep_strdup_printf("%s%s",=0A=
+ 						 (substring_value?substring_value:"*"),=0A=
+@@ -1594,7 +1599,7 @@=0A=
+ =0A=
+ static int=0A=
+ dissect_ldap_SubstringFilter(gboolean implicit_tag _U_, tvbuff_t *tvb, =
+int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {=0A=
+-#line 566 "ldap.cnf"=0A=
++#line 569 "ldap.cnf"=0A=
+ 	proto_tree *tr=3DNULL;=0A=
+ 	proto_item *it=3DNULL;=0A=
+ 	char *old_substring_value=3Dsubstring_value;=0A=
+@@ -1629,7 +1634,7 @@=0A=
+ dissect_ldap_T_greaterOrEqual(gboolean implicit_tag _U_, tvbuff_t *tvb, =
+int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {=0A=
+   offset =3D dissect_ldap_AttributeValueAssertion(implicit_tag, tvb, =
+offset, pinfo, tree, hf_index);=0A=
+ =0A=
+-#line 459 "ldap.cnf"=0A=
++#line 462 "ldap.cnf"=0A=
+ 	=
+Filter_string=3Dep_strdup_printf("(%s>=3D%s)",attributedesc_string,assert=
+ionvalue_string);=0A=
+ =0A=
+ =0A=
+@@ -1646,7 +1651,7 @@=0A=
+ dissect_ldap_T_lessOrEqual(gboolean implicit_tag _U_, tvbuff_t *tvb, =
+int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {=0A=
+   offset =3D dissect_ldap_AttributeValueAssertion(implicit_tag, tvb, =
+offset, pinfo, tree, hf_index);=0A=
+ =0A=
+-#line 463 "ldap.cnf"=0A=
++#line 466 "ldap.cnf"=0A=
+ 	=
+Filter_string=3Dep_strdup_printf("(%s<=3D%s)",attributedesc_string,assert=
+ionvalu+#line 547 "ldap.cnf"=0A=
+ 	Filter_string=3Dep_strdup_printf("(%s:%s%s%s=3D%s)",=0A=
+ 					(attr_type?attr_type:""),=0A=
+ 					(matching_rule_dnattr?"dn:":""),=0A=
+@@ -1777,7 +1782,7 @@=0A=
+ =0A=
+ static int=0A=
+ dissect_ldap_Filter(gboolean implicit_tag _U_, tvbuff_t *tvb, int =
+offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {=0A=
+-#line 587 "ldap.cnf"=0A=
++#line 590 "ldap.cnf"=0A=
+ 	proto_tree *tr=3DNULL;=0A=
+ 	proto_item *it=3DNULL;=0A=
+ =0A=
+@@ -1800,13 +1805,13 @@=0A=
+ =0A=
+ static int=0A=
+ dissect_ldap_T_filter(gboolean implicit_tag _U_, tvbuff_t *tvb, int =
+offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {=0A=
+-#line 448 "ldap.cnf"=0A=
++#line 451 "ldap.cnf"=0A=
+ 	Filter_string=3DNULL;=0A=
+ =0A=
+ =0A=
+   offset =3D dissect_ldap_Filter(implicit_tag, tvb, offset, pinfo, =
+tree, hf_index);=0A=
+ =0A=
+-#line 451boolean implicit_tag _U_, tvbuff_t *tvb, int =
+offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {=0A=
+-#line 61 "ldap.cnf"=0A=
++#line 64 "ldap.cnf"=0A=
+ =0A=
+   ldap_call_response_t *lcrp;=0A=
+   ldap_conv_info_t *ldap_info =3D (ldap_conv_info_t =
+*)pinfo->private_data;=0A=
+@@ -2594,7 +2599,7 @@=0A=
+                                  ProtocolOp_choice, hf_index, =
+ett_ldap_ProtocolOp,=0A=
+                                  &ProtocolOp);=0A=
+ =0A=
+-#line 67 "ldap.cnf"=0A=
++#line 70 "ldap.cnf"=0A=
+ =0A=
+   lcrp=3Dldap_match_call_response(tvb, pinfo, tree, MessageID, =
+ProtocolOp);=0A=
+   if(lcrp){=0A=
+Index: epan/dissectors/packet-x509ce.c=0A=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=0A=
+--- epan/dissectors/packet-x509ce.c	(revision 18688)=0A=
++++ epan/dissectors/packet-x509ce.c	(working copy)=0A=
+@@ -1,6 +1,6 @@=0A=
+ /* Do not modify this file.                                             =
+      */=0A=
+ /* It is created automatically by the ASN.1 to Wireshark dissector =
+compiler   */=0A=
+-/* .\packet-x509ce.c                                                    =
+      */=0A=
++/* ./packet-x509ce.c                                                    =
+      */=0A=
+ /* ../../tools/asn2wrs.py -b -e -p x509ce -c x509ce.cnf -s =
+pad of included file: packet-x509ce-ettarr.c ---*/=0A=
+-#line 102 "packet-x509ce-template.c"=0A=
++#line 103 "packet-x509ce-template.c"=0A=
+   };=0A=
+ =0A=
+   /* Register protocol */=0A=
+@@ -2391,8 +2392,11 @@=0A=
+ =0A=
+ =0A=
+ /*--- End of included file: packet-x509ce-dis-tab.c ---*/=0A=
+-#line 117 "packet-x509ce-template.c"=0A=
++#line 118 "packet-x509ce-template.c"=0A=
+ 	register_ber_oid_dissector("2.5.29.24", =
+dissect_x509ce_invalidityDate_callback, proto_x509ce, =
+"id-ce-invalidityDate");=0A=
+ 	register_ber_oid_dissector("2.5.29.51", =
+dissect_x509ce_baseUpdateTime_callback, proto_x509ce, =
+"id-ce-baseUpdateTime");=0A=
++=0A=
++	register_related_hfid_callback("GeneralName URL", =
+hf_x509ce_uniformResourceIdentifier, related_url_cb);=0A=
++=0A=
+ }=0A=
+ =0A=
+Index: epan/dissectors/packet-logotypecertextn.c=0A=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=0A=
+--- epan/dissectors/packet-logotypecertextn.c	(revision 18688)=0A=
++++ epan/dissectors/packet-logotypecertextn.c	(working copy)=0A=
+@@ -1,6 +1,6 @@=0A=
+ /* Do not modify this file.                                             =
+      */=0A=
+ /* It is created automatically by the ASN.1 to Wireshark dissector =
+compiler   */=0A=
+-/* .\packet-logotypecertextn.c                                       0, 0, dissect_direct_impl },=0A=
+-  {   1, BER_CLASS_CON, 1, 0, dissect_indirect_impl },=0A=
++  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_direct_impl },=0A=
++  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_indirect_impl },=0A=
+   { 0, 0, 0, 0, NULL }=0A=
+ };=0A=
+ =0A=
+Index: epan/dissectors/packet-x509ce.h=0A=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=0A=
+--- epan/dissectors/packet-x509ce.h	(revision 18688)=0A=
++++ epan/dissectors/packet-x509ce.h	(working copy)=0A=
+@@ -1,6 +1,6 @@=0A=
+ /* Do not modify this file.                                             =
+      */=0A=
+ /* It is created automatically by the ASN.1 to Wireshark dissector =
+compiler   */=0A=
+-/* .\packet-x509ce.h      =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=0A=
+--- epan/oid_resolv.c	(revision 18688)=0A=
++++ epan/oid_resolv.c	(working copy)=0A=
+@@ -32,11 +32,44 @@=0A=
+ #include "to_str.h"=0A=
+ #include "strutil.h"=0A=
+ #include "epan/dissectors/format-oid.h"=0A=
++#include "related.h"=0A=
+ =0A=
+ static GHashTable *oid_table =3D NULL;=0A=
+ =0A=
++/* this should be configurable - but where ? */=0A=
++static const gchar *oid_url_template =3D =
+"http://www.alvestrand.no/objectid/%s.html";=0A=
++=0A=
++static gboolean oid_related_cb(field_info *finfo, gboolean doit, const =
+gchar **ret_url)=0A=
++{=0A=
++  const char *oid;=0A=
++  =0A=
++  if(finfo && (finfo->hfinfo->type =3D=3D FT_OID) && =0A=
++     (oid_url_template !=3D NULL) && (*oid_url_template !=3D '\0')) {=0A=
++    if(doit && ret_url) {=0A=
++      /* return the URL */=0A=
++      oid =3D oid_to_str(tvb_get_ptr(finfo->ds_tvb, finfo->start, =
+finfo->length),=0A=
++		       finfo->length);=0A=
++=0A=
++      /* the URL will be freed */=0A=
++      *ret_url =3D g_strdup_printf(oid_url_template, oid);=0A=
++      return TRUE;=0A=
++    } else {=0A=
++      /* return TRUE if we are configured to return URLs */=0A=
++=0A=
++      if((oid_url_template !=3D NULL) && (*oid_url_template !=3D '\0')) =0A=
++	return TRUE;=0A=
++      =0A=
++    }=0A=
++  }=0A=
++=0A=
++  return FALSE;=0A=
++}=0A=
++=0A=
+ void oid_resolv_init(voi
+.
+QUIT
+EHLO GP
+AUTH LOGIN
+Z3VycGFydGFwQHBhdHJpb3RzLmlu
+cHVuamFiQDEyMw==
+MAIL FROM: <gurpartap@patriots.in>
+RCPT TO: <raj_deol2002in@yahoo.co.in>
+DATA
+From: "Gurpartap Singh" <gurpartap@patriots.in>
+To: <raj_deol2002in@yahoo.co.in>
+Subject: SMTP
+Date: Mon, 5 Oct 2009 11:36:07 +0530
+Message-ID: <000301ca4581$ef9e57f0$cedb07d0$@in>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0004_01CA45B0.095693F0"
+X-Mailer: Microsoft Office Outlook 12.0
+Thread-Index: AcpFgem9BvjjZEDeR1Kh8i+hUyVo0A==
+Content-Language: en-us
+x-cr-hashedpuzzle: SeA= AAR2 ADaH BpiO C4G1 D1gW FNB1 FPkR Fn+W HFCP HnYJ JO7s Kum6 KytW LFcI LjUt;1;cgBhAGoAXwBkAGUAbwBsADIAMAAwADIAaQBuAEAAeQBhAGgAbwBvAC4AYwBvAC4AaQBuAA==;Sosha1_v1;7;{CAA37F59-1850-45C7-8540-AA27696B5398};ZwB1AHIAcABhAHIAdABhAHAAQABwAGEAdAByAGkAbwB0AHMALgBpAG4A;Mon, 05 Oct 2009 06:06:01 GMT;UwBNAFQAUAA=
+x-cr-puzzleid: {CAA37F59-1850-45C7-8540-AA27696B5398}
+
+This is a multipart message in MIME format.
+
+------=_NextPart_000_0004_01CA45B0.095693F0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_001_0005_01CA45B0.095693F0"
+
+
+------=_NextPart_001_0005_01CA45B0.095693F0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Hello
+
+ 
+
+I send u smtp pcap file 
+
+Find the attachment
+
+ 
+
+GPS
+
+
+------=_NextPart_001_0005_01CA45B0.095693F0
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 12 (filtered medium)">
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri","sans-serif";
+	color:windowtext;}
+..MsoChpDefault
+	{mso-style-type:export-only;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext=3D"edit">
+  <o:idmap v:ext=3D"edit" data=3D"1" />
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+
+<div class=3DSection1>
+
+<p class=3DMsoNormal>Hello<o:p></o:p></p>
+
+<p class=3DMsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=3DMsoNormal>I send u smtp pcap file <o:p></o:p></p>
+
+<p class=3DMsoNormal>Find the attachment<o:p></o:p></p>
+
+<p class=3DMsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=3DMsoNormal>GPS<o:p></o:p></p>
+
+</div>
+
+</body>
+
+</html>
+
+------=_NextPart_001_0005_01CA45B0.095693F0--
+
+------=_NextPart_000_0004_01CA45B0.095693F0
+Content-Type: text/plain;
+	name="NEWS.txt"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="NEWS.txt"
+
+Version 4.9.9.1
+* Many bug fixes
+* Improved editor
+
+Version 4.9.9.0
+* Support for latest Mingw compiler system builds
+* Bug fixes
+
+Version 4.9.8.9
+* New code tooltip display
+* Improved Indent/Unindent and Remove Comment
+* Improved automatic indent
+* Added support for the "interface" keyword
+* WebUpdate should now report installation problems from PackMan
+* New splash screen and association icons
+* Improved installer
+* Many bug fixes
+
+Version 4.9.8.7
+* Added support for GCC > 3.2
+* Debug variables are now resent during next debug session
+* Watched Variables not in correct context are now kept and updated when =
+it is needed
+* Added new compiler/linker options:=20
+  - Strip executable
+  - Generate instructions for a specific machine (i386, i486, i586, =
+i686, pentium, pentium-mmx, pentiumpro, pentium2, pentium3, pentium4,=20
+    k6, k6-2, k6-3, athlon, athlon-tbird, athlon-4, athlon-xp, =
+athlon-mp, winchip-c6, winchip2, k8, c3 and c3-2)
+  - Enable use of processor specific built-in functions (mmmx, sse, =
+sse2, pni, 3dnow)
+* "Default" button in Compiler Options is back
+* Error messages parsing improved
+* Bug fixes
+
+Version 4.9.8.5
+* Added the possibility to modify the value of a variable during =
+debugging (right click on a watch variable and select "Modify value")
+* During Dev-C++ First Time COnfiguration window, users can now choose =
+between using or not class browser and code completion features.
+* Many bug fixes
+
+Version 4.9.8.4
+* Added the possibility to specify an include directory for the code =
+completion cache to be created at Dev-C++ first startup
+* Improved code completion cache
+* WebUpdate will now backup downloaded DevPaks in Dev-C++\Packages =
+directory, and Dev-C++ executable in devcpp.exe.BACKUP
+* Big speed up in function parameters listing while editing
+* Bug fixes
+
+Version 4.9.8.3
+* On Dev-C++ first time configuration dialog, a code completion cache of =
+all the standard=20
+  include files can now be generated.
+* Improved WebUpdate module
+* Many bug fixes
+
+Version 4.9.8.2
+* New debug feature for DLLs: attach to a running process
+* New project option: Use custom Makefile.=20
+* New WebUpdater module.
+* Allow user to specify an alternate configuration file in Environment =
+Options=20
+  (still can be overriden by using "-c" command line parameter).
+* Lots of bug fixes.
+
+Version 4.9.8.1
+* When creating a DLL, the created static lib respects now the =
+project-defined output directory
+
+Version 4.9.8.0
+* Changed position of compiler/linker parameters in Project Options.
+* Improved help file
+* Bug fixes
+
+Version 4.9.7.9
+* Resource errors are now reported in the Resource sheet
+* Many bug fixes
+
+Version 4.9.7.8
+* Made whole bottom report control floating instead of only debug =
+output.
+* Many bug fixes
+
+Version 4.9.7.7
+* Printing settings are now saved
+* New environment options : "watch variable under mouse" and "Report =
+watch errors"
+* Bug fixes
+
+Version 4.9.7.6
+* Debug variable browser
+* Added possibility to include in a Template the Project's directories =
+(include, libs and ressources)
+* Changed tint of Class browser pictures colors to match the New Look =
+style
+* Bug fixes
+
+Version 4.9.7.5
+* Bug fixes
+
+Version 4.9.7.4
+* When compiling with debugging symbols, an extra definition is passed =
+to the
+  compiler: -D__DEBUG__
+* Each project creates a <project_name>_private.h file containing =
+version
+  information definitions
+* When compiling the current file only, no dependency checks are =
+performed
+* ~300% Speed-up in class parser
+* Added "External programs" in Tools/Environment Options (for units =
+"Open with")
+* Added "Open with" in project units context menu
+* Added "Classes" toolbar
+* Fixed pre-compilation dependency checks to work correctly
+* Added new file menu entry: Save Project As
+* Bug-fix for double quotes in devcpp.cfg file read by vUpdate
+* Other bug fixes
+
+Version 4.9.7.3
+* When adding debugging symbols on request, remove "-s" option from =
+linker
+* Compiling progress window
+* Environment options : "Show progress window" and "Auto-close progress =
+window"
+* Bug fixes
+
+Version 4.9.7.2
+* Bug fixes
+
+Version 4.9.7.1
+* "Build priority" per-unit
+* "Include file in linking process" per-unit
+* New feature: compile current file only
+* Separated C++ compiler options from C compiler options in Makefile =
+(see bug report #654744)
+* Separated C++ include dirs from C include dirs in Makefile (see bug =
+report #654744)
+* Necessary UI changes in Project Options
+* Added display of project filename, project output and a summary of the =
+project files in Project Options General tab.
+* Fixed the "compiler-dirs-with-spaces" bug that crept-in in 4.9.7.0
+* Multi-select files in project-view (when "double-click to open" is =
+configured in Environment Settings)
+* Resource files are treated as ordinary files now
+* Updates in "Project Options/Files" code
+* MSVC import now creates the folders structure of the original VC =
+project
+* Bug fixes
+
+Version 4.9.7.0
+* Allow customizing of per-unit compile command in projects
+* Added two new macros: <DATE> and <DATETIME>
+* Added support for macros in the "default source code" (Tools/Editor =
+Options/Code)
+* Separated layout info from project file. It is now kept in a different =
+file
+  (the same filename as the project's but with extension ".layout"). If =
+you
+  have your project under CVS control, you ''ll know why this had to =
+happen...
+* Compiler settings per-project
+* Compiler set per-project
+* Implemented new compiler settings framework
+* "Compile as C++" per-unit
+* "Include file in compilation process" per-unit
+* Project version info (creates the relevant VERSIONINFO struct in the =
+private
+  resource)
+* Support XP Themes (creates the CommonControls 6.0 manifest file and =
+includes
+  it in the private resource)
+* Added CVS "login" and "logout" commands
+* Project manager and debugging window (in Debug tab) can now be =
+trasnformed into floating windows.
+* Added "Add Library" button in Project Options
+* Bug fixes
+
+Version 4.9.6.9
+* Implemented search in help files for the word at cursor (context =
+sensitive help)
+* Implemented "compiler sets" infrastructure to switch between different =
+compilers easily (e.g. gcc-2.95 and gcc-3.2)
+* Added "Files" tab in CVS form to allow selection of more than one file =
+for
+  the requested CVS action
+ =20
+Version 4.9.6.8
+* support for DLL application hosting, for debugging and executing DLLs =
+under Dev-C++.
+* New class browser option: "Show inherited members"
+* Added support for the '::' member access operator in code-completion
+* Added *working* function arguments hint
+* Added bracket highlighting. When the caret is on a bracket, that =
+bracket and
+  its counterpart are highlighted
+* Nested folders in project view
+
+Version 4.9.6.7
+* XP Theme support
+* Added CVS commands "Add" and "Remove"
+* Added configuration option for "Templates Directory" in "Environment =
+Options"
+* Code-completion updates
+* Bug fixes
+
+Version 4.9.6.6
+* Editor colors are initialized properly on Dev-C++ first-run
+* Added doxygen-style comments in NewClass, NewMemberFunction and =
+NewMemberVariable wizards
+* Added file's date/time stamp in File/Properties window
+* Current windows listing in Window menu
+* Bug fixes
+
+Version 4.9.6.5
+* CVS support
+* Window list (in Window menu)
+* bug fixes
+
+version 4.9.6.4
+* added ENTER key for opening file in project browser, DEL to delete =
+from the project.
+* bug fixes
+
+version 4.9.6.3
+* Bug fixes
+
+version 4.9.6.2
+* Bug fixes
+
+version 4.9.6.1
+* New "Abort compilation" button
+* Bug fixes
+* Now checks for vRoach existance when sending a crash report
+
+Version 4.9.5.5
+* New option in Editor Options: Show editor hints. User can disable the =
+hints
+  displayed in the editor when the mouse moves over a word. Since this =
+was the
+  cause of many errors (although it should be fixed by now), we are =
+giving the
+  user the option to disable this feature.
+* New option in Editor Options (code-completion): Use code-completion =
+cache.
+  Well, it adds caching to code-completion. Depending on the cache size,
+  the program may take a bit longer to start-up, but provides very fast
+  code-completion and the user has all the commands (belonging to the =
+files
+  he added in the cache) at his fingertips. If, for example, the user =
+adds
+  "windows.h", he gets all the WinAPI! If he adds "wx/wx.h", he gets all =
+of
+  wxWindows! You get the picture...
+* Removed "Only show classes from current file" option in class browser =
+settings.
+  It used to be a checkbox, allowing only two states (on or off), but =
+there is
+  a third relevant option now: "Project classes" so it didn't fit the =
+purpose...
+  The user can define this in the class browser's context menu under =
+"View mode".
+* Fixed the dreaded "Clock skew detected" compiler warning!
+* Fixed many class browser bugs, including some that had to do with =
+class folders.
+
+Version 4.9.5.4
+* Under NT, 2000 and XP, user application data directory will be used to =
+store config files (i.e : C:\Documents and Settings\Username\Local =
+Settings\Application Data)
+
+Version 4.9.5.3
+* Added ExceptionsAnalyzer. If the devcpp.map file is in the devcpp.exe =
+directory
+  then we even get a stack trace in the bug report!
+* Added new WebUpdate module (inactive temporarily).
+* Added new code for code-completion caching of files (disabled - work =
+in progress).
+
+Version 4.9.5.2
+* Added new option in class-browser: Use colors
+  (available when right-clicking the class-browser
+  and selecting "View mode").
+* Dev-C++ now traps access violation of your programs (and of itself too =
+;)
+
+Version 4.9.5.1
+* Implemented the "File/Export/Project to HTML" function.
+* Added "Tip of the day" system.
+* When running a source file in explorer, don't spawn new instance.
+  Instead open the file in an already launched Dev-C++.
+* Class-parser speed-up (50% to 85% improvement timed!!!)
+* Many code-completion updates. Now takes into account context,
+  class inheritance and visibility (shows items only from files
+  #included directly or indirectly)!
+* Caching of result set of code-completion for speed-up.
+* New option "Execution/Parameters" (and "Debug/Parameters").
+
+Version 4.9.5.0 (5.0 beta 5):
+* CPU Window (still in development)
+* ToDo  list
+* Backtrace in debugging
+* Run to cursor
+* Folders in Project and Class Browser
+* Send custom commands to GDB
+* Makefile can now be customized.
+* Modified the behaviour of the -c param :=20
+  -c <config file directory>
+* Saving of custom syntax parameter group
+* Possibility of changing compilers and tools filename.
+* Many bug fixes
+
+
+Version 4.9.4.1 (5.0 beta 4.1):
+
+* back to gcc 2.95.3
+* Profiling support
+* new update/packages checker (vUpdate)
+* Lots of bugfixes
+
+------=_NextPart_000_0004_01CA45B0.095693F0--
+
+.
+QUIT

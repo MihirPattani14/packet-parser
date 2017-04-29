@@ -1,0 +1,90 @@
+/*
+*Author: Mihir Pattani
+*Penn Key: 63859942
+*Course: Networked Systems CIS-553
+*Assignment 2: Network Analysis
+*/
+
+I have completed all requirements of Part 1, 2, 3 of Project 2 with extra credit.
+
+Please note - I have only implemented checksum validation for TCP packets because thats what the assignment said
+
+The code compiles and runs without errors or warnings on the eniac machine.
+
+The code runs properly for smtp.pcap, sampleimf.pcap and cookie.pcap
+
+An example of the running the code is - 
+
+#####@eniac:~/ns> make
+
+#####@eniac:~/ns> python packetparser.py <filename>
+
+#####@eniac:~/ns> python packetparser.py <filename> -t
+
+#####@eniac:~/ns> python packetparser.py <filename> -m
+
+#####@eniac:~/ns> python packetparser.py <filename> -c
+
+
+
+Part 1 prints out details like below:
+
+_____________________________________________
+
+	Packet Number: 60
+_____________________________________________
+
+Packet Type:	|	UDP
+MAC src:	|	00:02:3f:ec:61:110
+MAC dest:	|	ff:ff:ff:ff:ff:ff
+IP src:		|	10:10:1:20 
+IP dest:	|	10:10:1:255
+Src port:	|	138
+Dest port:	|	138
+Payload :	|	201
+
+
+_____________________________________________
+
+	Overall Statistics
+_____________________________________________
+
+Total Packets:	|	60
+TCP Packets:	|	53
+UDP Packets:	|	3
+Other Packets:	|	4
+
+
+Part 2 generates 3 files for each connection:
+1.meta, 1.initiator, 1.responder (for connection 1)
+
+Part 3 generates 1 file per message
+1.mail, 2.mail etc
+
+Extra credit generates 1 file per cookie
+1.cookie, 2.cookie
+
+
+
+
+"""""CHANGES FROM Previous submission"""""
+
+KYLE AS I HAD SPOKEN TO YOU BEFORE I ADDED THESE LINES TO MY PREVIOUS PART 2 SUBMISSION IN THE FILE packetparser.py
+
+In the function "process_packet_from_init":
+
+        if not len(current_connection.s_noAck) == 0:
+            for i in range(len(current_connection.s_noAck)):
+                if packet.seq == current_connection.s_noAck[i].seq:
+                    del current_connection.s_noAck[i:]
+                    break
+
+In the function "process_packet_from_resp":
+
+	if not len(current_connection.d_noAck) == 0:
+            for i in range(len(current_connection.d_noAck)):
+                if packet.seq == current_connection.d_noAck[i].seq:
+                    del current_connection.d_noAck[i:]
+                    break                  
+                    
+Both these blocks of code are similar and handle the same end case (one for the packets from the initiator and other for the packets from respnder)                     

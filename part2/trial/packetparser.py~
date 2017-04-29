@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Wed Apr 12 20:35:58 2017
+
+@author: mihir
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Mon Apr 10 20:34:16 2017
 
 @author: mihir
@@ -11,7 +18,6 @@ import dpkt
 import socket
 import sys
 import Connection
-import copy
 import subprocess
 
 class TCP_Connection:
@@ -47,7 +53,7 @@ class TCP_Connection:
     def establish_connection(self, packet):
         exists, conn_num, state = self.exists_connection(packet.sip, packet.dip, packet.sport, packet.dport)
         allow =True        
-        if exists == False:
+        if exists == False: 
             allow = self.new_connection_allow(packet.sip, packet.dip, packet.sport, packet.dport)
         else:
             allow = False
@@ -80,9 +86,13 @@ class TCP_Connection:
                     if packet.ack == current_connection.d_noAck[i].seq + len(current_connection.d_noAck[i].data):
                         self.write_data_file(conn_num, 'd', current_connection.d_noAck[i].data)
                         del current_connection.d_noAck[0:i+1]
+                        current_connection.ddup = i
+                        print "here"
                         flag = 1                                    
                         break
                 if flag == 0:
+                    print "here"
+                    current_connection.ddup = len(current_connection.d_noAck) 
                     current_connection.d_noAck[:] = []
     
     def process_packet_from_resp(self, packet, current_connection, conn_num):
@@ -100,10 +110,12 @@ class TCP_Connection:
                     if packet.ack == current_connection.s_noAck[i].seq + len(current_connection.s_noAck[i].data):
                         self.write_data_file(conn_num, 's', current_connection.s_noAck[i].data)
                         del current_connection.s_noAck[0:i+1]
+                        current_connection.sdup = i
                         flag = 1
                         break
                 if flag == 0:
-                    current_connection.d_noAck[:] = []
+                    current_connection.sdup = len(current_connection.s_noAck)
+                    current_connection.s_noAck[:] = []
         current_connection.dbytes += len(packet.data)
         
     def process_packet(self, packet_num, data):
@@ -181,145 +193,47 @@ class TCP_Connection:
                         if not len(packet.data) == 0: 
                             current_connection.dbytes += len(packet.data)
                         print current_connection.dbytes
-                
+            
+            elif not syn_flag and rst_flag:  
+                print " m"
+                current_connection = self.active_conns[conn_num]
+                if packet.sip == current_connection.sip:
+                    self.process_packet_from_init(packet, current_connection, conn_num)
+                    print "Written: Packet ", packet_num
+                elif packet.sip == current_connection.dip:
+                    self.process_packet_from_resp(packet, current_connection, conn_num)
+
             elif not syn_flag and not fin_flag and state == Connection.Connection.CONNECTED:
                 current_connection = self.active_conns[conn_num]
                 if packet.sip == current_connection.sip:
                     self.process_packet_from_init(packet, current_connection, conn_num)
-#                    current_connection.spackets += 1
-#                    if not len(packet.data) == 0:
-#                        current_connection.s_noAck.append(packet)
-#                    current_connection.sbytes += len(packet.data)                    
-#                    if not len(current_connection.d_noAck) == 0:
-#                        if packet.ack == current_connection.d_noAck[0].seq + len(current_connection.d_noAck[0].data):
-#                            self.write_data_file(conn_num, 'd', current_connection.d_noAck[0].data)                          
-#                            del current_connection.d_noAck[0]
-#                        else:
-#                            flag = 0
-#                            for i in range(1, len(current_connection.d_noAck)):
-#                                if packet.ack == current_connection.d_noAck[i].seq + len(current_connection.d_noAck[i].data):
-#                                    self.write_data_file(conn_num, 'd', current_connection.d_noAck[i].data)
-#                                    del current_connection.d_noAck[0:i+1]
-#                                    flag = 1                                    
-#                                    break
-#                            if flag == 0:
-#                                current_connection.d_noAck[:] = []
                 elif packet.sip == current_connection.dip:
                     self.process_packet_from_resp(packet, current_connection, conn_num)
-#                    current_connection.dpackets += 1
-#                    if not len(packet.data) == 0:
-#                        current_connection.d_noAck.append(packet)
-#                    
-#                    if not len(current_connection.s_noAck) == 0:
-#                        if packet.ack == current_connection.s_noAck[0].seq + len(current_connection.s_noAck[0].data):
-#                            self.write_data_file(conn_num, 's', current_connection.s_noAck[0].data)             
-#                            del current_connection.s_noAck[0]
-#                        else:
-#                            flag = 0
-#                            for i in range(1, len(current_connection.s_noAck)):
-#                                if packet.ack == current_connection.s_noAck[i].seq + len(current_connection.s_noAck[i].data):
-#                                    self.write_data_file(conn_num, 's', current_connection.s_noAck[i].data)
-#                                    del current_connection.s_noAck[0:i+1]
-#                                    flag = 1
-#                                    break
-#                            if flag == 0:
-#                                current_connection.d_noAck[:] = []
-#                    current_connection.dbytes += len(packet.data)                    
                 
             elif not syn_flag and fin_flag and state == Connection.Connection.CONNECTED:
                 current_connection = self.active_conns[conn_num]
                 if packet.sip == current_connection.sip:
                     self.process_packet_from_init(packet, current_connection, conn_num)
-#                    current_connection.spackets += 1
-#                    if not len(packet.data) == 0:
-#                        current_connection.s_noAck.append(packet)
-#                    current_connection.sbytes += len(packet.data)                    
-#                    if not len(current_connection.d_noAck) == 0:
-#                        if packet.ack == current_connection.d_noAck[0].seq + len(current_connection.d_noAck[0].data):
-#                            self.write_data_file(conn_num, 'd', current_connection.d_noAck[0].data)
-#                            del current_connection.d_noAck[0]
-#                        else:
-#                            flag = 0
-#                            for i in range(1, len(current_connection.d_noAck)):
-#                                if packet.ack == current_connection.d_noAck[i].seq + len(current_connection.d_noAck[i].data):
-#                                    self.write_data_file(conn_num, 'd', current_connection.d_noAck[i].data)                                    
-#                                    del current_connection.d_noAck[0:i+1]
-#                                    flag = 1                                    
-#                                    break
-#                            if flag == 0:
-#                                current_connection.d_noAck[:] = []
-                                
                     current_connection.state = Connection.Connection.FIN_S
                 elif packet.sip == current_connection.dip:
                     self.process_packet_from_resp(packet, current_connection, conn_num)
-#                    current_connection.dpackets += 1
-#                    if not len(packet.data) == 0:
-#                        current_connection.d_noAck.append(packet)
-#                    if not len(current_connection.s_noAck) == 0:
-#                        if packet.ack == current_connection.s_noAck[0].seq + len(current_connection.s_noAck[0].data):
-#                            self.write_data_file(conn_num, 's', current_connection.s_noAck[0].data) 
-#                            del current_connection.s_noAck[0]
-#                        else:
-#                            flag = 0
-#                            for i in range(1, len(current_connection.s_noAck)):
-#                                if packet.ack == current_connection.s_noAck[i].seq + len(current_connection.s_noAck[i].data):
-#                                    self.write_data_file(conn_num, 's', current_connection.s_noAck[i].data)
-#                                    del current_connection.s_noAck[0:i+1]  
-#                                    flag = 1
-#                                    break
-#                            if flag == 0:
-#                                current_connection.s_noAck[:] = []
-#                    current_connection.dbytes += len(packet.data)
                     current_connection.state = Connection.Connection.FIN_D                    
-            
             elif not syn_flag and state == Connection.Connection.FIN_S and not fin_flag:
                 current_connection = self.active_conns[conn_num]
                 if packet.sip == current_connection.sip:
                     current_connection.spackets += 1
                 elif packet.sip == current_connection.dip:
-                    current_connection.dpackets += 1
-                    if not len(packet.data) == 0:
-                        current_connection.d_noAck.append(packet)
-                    if not len(current_connection.s_noAck) == 0:
-                        if packet.ack == current_connection.s_noAck[0].seq + len(current_connection.s_noAck[0].data):
-                            self.write_data_file(conn_num, 's', current_connection.s_noAck[0].data)                             
-                            del current_connection.s_noAck[0]
-                        else:
-                            flag = 0
-                            for i in range(1, len(current_connection.s_noAck)):
-                                if packet.ack == current_connection.s_noAck[i].seq + len(current_connection.s_noAck[i].data):
-                                    self.write_data_file(conn_num, 's', current_connection.s_noAck[i].data)                                    
-                                    del current_connection.s_noAck[0:i+1]  
-                                    flag = 1                                    
-                                    break
-                            if flag == 0:
-                                current_connection.s_noAck[:] = []
-                    current_connection.dbytes += len(packet.data)
+                    print "here"
+                    self.process_packet_from_resp(packet, current_connection, conn_num)
+
             elif not syn_flag and state == Connection.Connection.FIN_D and not fin_flag:
                 current_connection = self.active_conns[conn_num]
                 if packet.sip == current_connection.sip:
-                    current_connection.spackets += 1
-                    if not len(packet.data) == 0:
-                        current_connection.s_noAck.append(packet)
-                    current_connection.sbytes += len(packet.data)                    
-                    if not len(current_connection.d_noAck) == 0:
-                        if packet.ack == current_connection.d_noAck[0].seq + len(current_connection.d_noAck[0].data):
-                            self.write_data_file(conn_num, 'd', current_connection.d_noAck[0].data)                             
-                            del current_connection.d_noAck[0]
-                        else:
-                            flag = 0
-                            for i in range(1, len(current_connection.d_noAck)):
-                                if packet.ack == current_connection.d_noAck[i].seq + len(current_connection.d_noAck[i].data):
-                                    self.write_data_file(conn_num, 'd', current_connection.d_noAck[i].data)                                    
-                                    del current_connection.d_noAck[0:i+1]
-                                    flag = 1
-                                    break
-                            if flag == 0:
-                                current_connection.s_noAck[:] = []
-                                
+                    self.process_packet_from_init(packet, current_connection, conn_num)
                 elif packet.sip == current_connection.dip:
                     current_connection.dpackets += 1
                     current_connection.dbytes += len(packet.data)
+            
             elif not syn_flag and state == Connection.Connection.FIN_D and fin_flag:
                 current_connection = self.active_conns[conn_num]
                 if packet.sip == current_connection.sip:
@@ -329,6 +243,7 @@ class TCP_Connection:
                     current_connection.dpackets += 1
                     current_connection.dbytes += len(packet.data)
                 current_connection.state = Connection.Connection.ACK_2
+
             elif not syn_flag and state == Connection.Connection.FIN_S and fin_flag:
                 current_connection = self.active_conns[conn_num]
                 if packet.sip == current_connection.sip:
@@ -338,6 +253,7 @@ class TCP_Connection:
                     current_connection.dpackets += 1
                     current_connection.dbytes += len(packet.data)                
                 current_connection.state = Connection.Connection.ACK_2
+
             elif ack_flag and state == Connection.Connection.ACK_2:
                 current_connection = self.active_conns[conn_num]
                 if packet.sip == current_connection.sip:
@@ -347,6 +263,7 @@ class TCP_Connection:
                     current_connection.dpackets += 1
                     current_connection.dbytes += len(packet.data)
                 current_connection.state = Connection.Connection.ACK_3
+
             elif ack_flag and state == Connection.Connection.ACK_3:
                 current_connection = self.active_conns[conn_num]
                 if packet.sip == current_connection.sip:
@@ -367,6 +284,7 @@ if __name__ == "__main__":
     if(len(sys.argv) == 2):
         print len(sys.argv)
         string = "./packetparse "+filename
+#        string = "python print_details.py "+ filename         
         subprocess.call(string, shell=True)
     elif sys.argv[2] == "-t":
         pcap = dpkt.pcap.Reader(pcapdata)
@@ -388,7 +306,7 @@ if __name__ == "__main__":
             data_str = data_str + "\nBytes Sent by Initiator: " + str(tcp_conn.active_conns[i].sbytes)
             data_str = data_str + "\nBytes Sent by Responder: " + str(tcp_conn.active_conns[i].dbytes)
             data_str = data_str + "\nDuplicate Packets Sent by Initiator: " + str(tcp_conn.active_conns[i].sdup)
-            data_str = data_str + "\nDuplicate Packets Sent by Initiator: " + str(tcp_conn.active_conns[i].ddup)
+            data_str = data_str + "\nDuplicate Packets Sent by Responder: " + str(tcp_conn.active_conns[i].ddup)
             data_str = data_str + "\nConnection Ended before EOF: " + str(tcp_conn.active_conns[0].state == Connection.Connection.END)             
             f.write(data_str)
             f.close()

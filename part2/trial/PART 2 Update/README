@@ -1,0 +1,46 @@
+/*
+*Author: Mihir Pattani
+*Penn Key: 63859942
+*Course: Networked Systems CIS-553
+*Assignment 2: Network Analysis
+*/
+
+I have completed all requirements of Part 1 and Part 2 of assignment 2.
+
+Please note - I have only implemented checksum validation for TCP packets because thats what the assignment said
+
+The code compiles and runs without errors or warnings on the eniac machine.
+
+I have added comments in my code to explain different steps.
+
+
+An example of the running the code is - 
+
+#####@eniac:~/ns> make
+
+#####@eniac:~/ns> python packetparser.py <filename>
+
+#####@eniac:~/ns> python packetparser.py <filename> -t
+
+
+"""""CHANGES FROM Previous submission"""""
+
+KYLE AS I HAD SPOKEN TO YOU BEFORE I ADDED THESE LINES TO MY PREVIOUS PART 2 SUBMISSION IN THE FILE packetparser.py
+
+In the function "process_packet_from_init":
+
+        if not len(current_connection.s_noAck) == 0:
+            for i in range(len(current_connection.s_noAck)):
+                if packet.seq == current_connection.s_noAck[i].seq:
+                    del current_connection.s_noAck[i:]
+                    break
+
+In the function "process_packet_from_resp":
+
+	if not len(current_connection.d_noAck) == 0:
+            for i in range(len(current_connection.d_noAck)):
+                if packet.seq == current_connection.d_noAck[i].seq:
+                    del current_connection.d_noAck[i:]
+                    break                  
+                    
+Both these blocks of code are similar and handle the same end case (one for the packets from the initiator and other for the packets from respnder)                     

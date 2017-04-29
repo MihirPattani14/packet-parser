@@ -33,6 +33,7 @@ class Connection:
         self.state = -1
         self.s_noAck = []
         self.d_noAck = []
+        self.smtp = SMTP_mail()
 
 class Packet:
     def __init__(self):
@@ -46,3 +47,34 @@ class Packet:
         self.ack = 0
         self.flags = 0
         self.data = ""
+        
+class SMTP_mail:
+    EHLO = 0
+    EHLO_ACK = 1
+    INIT = 1
+    MAIL_FROM = 2
+    AUTH = 2.5
+    MAIL_ACCEPT = 3
+    AUTH_ACCEPT = 3.5
+    RCPT = 4
+    RCPT_ACCEPT = 5
+    RCPT_MULTI = 5.5
+    RCPT_PART_ACCEPT = 6
+    DATA = 7
+    DATA_ACCEPT = 8
+    DOT = 9
+    DOT_ACCEPT = 10
+    QUIT = 11
+    QUIT_ACCEPT = 12    
+    def __init__(self):
+        self.mail_count = 0
+        self.sip = 0
+        self.dip = 0
+        self.status = -1
+        self.ehlo = -1
+        self.headers = ""
+        self.message = ""
+        self.accepted = ""
+        self.rec_count = 0
+        self.rec_sent = []
+        self.rec_acc = 0

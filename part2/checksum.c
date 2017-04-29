@@ -179,14 +179,14 @@ int main(int argc, char *argv[]){
 			
 			//TCP header length
 			transport_header_length = ((*(tcp->offset_reserved_flag) & 0xF0) >> 4)*4;
-			
 			U16 ip_tot = *((U16*)ip->total_len);
 			ip_tot = ip_tot >> 8 | ip_tot << 8;
 			int ip_l = ip_tot;
-			
+			printf("AAA:%d\n", ip_l);
 			//Actual payload / data length			
 			//payload_length = header.len - (ethernet_header_length + ip_header_length + transport_header_length);
 			payload_length = ip_l - ip_header_length - transport_header_length;
+			//printf("p: %d, h: %d, e: %d, i: %d, t: %d\n",  payload_length, header.len, ethernet_header_length, ip_header_length, transport_header_length);
 			//calculate and save ports
 			U16 src_port = *((U16*)tcp->src_port);	
 			src_port = src_port >> 8 | src_port << 8;
@@ -237,12 +237,11 @@ int main(int argc, char *argv[]){
 			
 			//udp header length is fixed size = 8 bytes
 			transport_header_length = 8;
-			U16 ip_tot = *((U16*)ip->total_len);
-			ip_tot = ip_tot >> 8 | ip_tot << 8;
-			int ip_l = ip_tot;
+			
 			//real payload/ data length in bytes
-			//payload_length = header.len - (ethernet_header_length + ip_header_length + transport_header_length);
-			payload_length = ip_l - ip_header_length - transport_header_length;
+			payload_length = header.len - (ethernet_header_length + ip_header_length + transport_header_length);
+			printf("p: %d, h: %d, e: %d, i: %d, t: %d\n",  payload_length, header.len, ethernet_header_length, ip_header_length, transport_header_length);
+			
 			//process and save port data
 			U16 src_port = *((U16*)udp->src_port);	
 			src_port = src_port >> 8 | src_port << 8;
